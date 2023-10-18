@@ -1,7 +1,6 @@
 package io.ince.stockmanagement.productservice.service.impl;
 
 import io.ince.stockmanagement.productservice.enums.Language;
-import io.ince.stockmanagement.productservice.exception.enums.FriendlyMessageCode;
 import io.ince.stockmanagement.productservice.exception.enums.FriendlyMessageCodes;
 import io.ince.stockmanagement.productservice.exception.exceptions.ProductNotCreatedException;
 import io.ince.stockmanagement.productservice.repository.ProductRepository;
