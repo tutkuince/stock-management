@@ -10,7 +10,10 @@ info:
 
 server:
   port: 9788
-
+logging:
+  level:
+    root: off
+    io.ince: debug
 ---
 spring:
   profiles:

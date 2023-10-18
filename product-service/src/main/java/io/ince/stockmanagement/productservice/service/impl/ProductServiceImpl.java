@@ -19,7 +19,6 @@ import java.util.List;
 @Slf4j
 public class ProductServiceImpl implements ProductService {
 
-
     private final ProductRepository productRepository;
 
     @Autowired
@@ -34,7 +33,7 @@ public class ProductServiceImpl implements ProductService {
         try {
             Product product = Product.builder()
                     .productName(productCreateRequest.getProductName())
-                    .isActive(true)
+                    .active(true)
                     .price(productCreateRequest.getPrice())
                     .quantity(productCreateRequest.getQuantity())
                     .build();

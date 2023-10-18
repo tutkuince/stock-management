@@ -38,5 +38,5 @@ public class Product {
     private LocalDateTime productCreatedDate = LocalDateTime.now();
 
     @Column(name = "is_active")
-    private boolean isActive;
+    private boolean active;
 }
