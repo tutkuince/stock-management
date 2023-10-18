@@ -5,6 +5,7 @@ import io.ince.stockmanagement.productservice.exception.enums.FriendlyMessageCod
 import io.ince.stockmanagement.productservice.exception.utils.FriendlyMessageUtils;
 import io.ince.stockmanagement.productservice.repository.entity.Product;
 import io.ince.stockmanagement.productservice.request.ProductCreateRequest;
+import io.ince.stockmanagement.productservice.request.ProductUpdatedRequest;
 import io.ince.stockmanagement.productservice.response.FriendlyMessage;
 import io.ince.stockmanagement.productservice.response.InternalAPIResponse;
 import io.ince.stockmanagement.productservice.response.ProductResponse;
@@ -16,8 +17,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.temporal.ChronoField;
-import java.time.temporal.Temporal;
-import java.time.temporal.TemporalField;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Slf4j
 @RestController
@@ -40,6 +41,64 @@ public class ProductController {
         log.debug("[{}][createProduct] -> request: {}", this.getClass().getSimpleName(), productResponse);
         InternalAPIResponse<ProductResponse> response = convertProductResponseToInternalResponse(language, productResponse);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    }
+
+    @GetMapping("/{productId}/{language}")
+    public ResponseEntity<InternalAPIResponse<ProductResponse>> getProduct(@PathVariable Long productId, @PathVariable Language language) {
+        log.debug("[{}][getProduct] -> request: {}", this.getClass().getSimpleName(), productId);
+        Product product = productService.getProduct(language, productId);
+        ProductResponse productResponse = convertProductResponse(product);
+        log.debug("[{}][createProduct] -> request: {}", this.getClass().getSimpleName(), productResponse);
+        InternalAPIResponse<ProductResponse> response = convertProductResponseToInternalResponse(language, productResponse);
+        return ResponseEntity.status(HttpStatus.OK).body(response);
+    }
+
+    @PutMapping("/{productId}/{language}")
+    public ResponseEntity<InternalAPIResponse<ProductResponse>> updateProduct(@PathVariable Long productId, @PathVariable Language language, @RequestBody ProductUpdatedRequest productUpdatedRequest) {
+        log.debug("[{}][updateProduct] -> request: {}", this.getClass().getSimpleName(), productId);
+        Product product = productService.updateProduct(language, productUpdatedRequest);
+        ProductResponse productResponse = convertProductResponse(product);
+        log.debug("[{}][updateProduct] -> request: {}", this.getClass().getSimpleName(), productResponse);
+        InternalAPIResponse<ProductResponse> response = convertProductResponseToInternalResponse(language, productResponse);
+        return ResponseEntity.status(HttpStatus.OK).body(response);
+    }
+
+    @GetMapping("/{language}")
+    public ResponseEntity<InternalAPIResponse<List<ProductResponse>>> getProductList(@PathVariable Language language) {
+        log.debug("[{}][getProduct] -> request: {}", this.getClass().getSimpleName(), language);
+        List<Product> productList = productService.getAllProducts(language);
+        List<ProductResponse> productResponseList = convertProductResponseList(productList);
+        log.debug("[{}][createProduct] -> request: {}", this.getClass().getSimpleName(), productResponseList);
+        InternalAPIResponse<List<ProductResponse>> response = InternalAPIResponse.<List<ProductResponse>>builder()
+                .httpStatus(HttpStatus.OK)
+                .hasError(false)
+                .payload(productResponseList)
+                .build();
+        return ResponseEntity.status(HttpStatus.OK).body(response);
+    }
+
+    @DeleteMapping("/{productId}/{language}")
+    public ResponseEntity<InternalAPIResponse<ProductResponse>> deleteProduct(@PathVariable Long productId, @PathVariable Language language) {
+        log.debug("[{}][deleteProduct] -> request: {}", this.getClass().getSimpleName(), productId);
+        Product product = productService.deleteProduct(language, productId);
+        ProductResponse productResponse = convertProductResponse(product);
+        log.debug("[{}][deleteProduct] -> request: {}", this.getClass().getSimpleName(), productResponse);
+        InternalAPIResponse<ProductResponse> response = convertProductResponseToInternalResponse(language, productResponse);
+        return ResponseEntity.status(HttpStatus.OK).body(response);
+    }
+
+    private List<ProductResponse> convertProductResponseList(List<Product> productList) {
+        return productList.stream()
+                .map(arg -> ProductResponse.builder()
+                        .productId(arg.getProductId())
+                        .productName(arg.getProductName())
+                        .quantity(arg.getQuantity())
+                        .price(arg.getPrice())
+                        .productCreatedDate(arg.getProductCreatedDate().getLong(ChronoField.EPOCH_DAY))
+                        .productUpdatedDate(arg.getProductCreatedDate().getLong(ChronoField.EPOCH_DAY))
+                        .build()
+
+                ).collect(Collectors.toList());
     }
 
     private static InternalAPIResponse<ProductResponse> convertProductResponseToInternalResponse(Language language, ProductResponse productResponse) {
